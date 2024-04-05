@@ -1,29 +1,27 @@
-import { useState, Dispatch, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { categories } from "../data/db";
 import { Activity } from "../types/";
-import { ActivityActions, ActivityState } from "../reducers/activity-reducer";
-
-type FormProps = {
-  dispatch: Dispatch<ActivityActions>;
-  state: ActivityState;
-};
+import { useActivity } from "../hook/useActivity";
 
 const initialState: Activity = {
   id: uuidv4(),
   category: 1,
   name: "",
-  calories: 0,
+  calories: NaN,
 };
-export default function Form({ dispatch, state }: FormProps) {
-  const [activity, setActivity] = useState<Activity>(initialState);
 
+export default function Form() {
+  const [activity, setActivity] = useState<Activity>(initialState);
+  const { state, dispatch } = useActivity();
   useEffect(() => {
     if (state.activeId) {
       const selectActivity = state.activities.filter(
         (stateActivity) => stateActivity.id === state.activeId
       )[0];
       setActivity(selectActivity);
+    } else {
+      setActivity(initialState);
     }
   }, [state.activeId, state.activities]);
 
@@ -32,11 +30,11 @@ export default function Form({ dispatch, state }: FormProps) {
       | React.ChangeEvent<HTMLSelectElement>
       | React.ChangeEvent<HTMLInputElement>
   ) => {
-    const isNumberField = ["category", "calories"].includes(e.target.id);
-
+    const { id, value } = e.target;
+    const isNumberField = ["category", "calories"].includes(id);
     setActivity({
       ...activity,
-      [e.target.id]: isNumberField ? +e.target.value : e.target.value,
+      [id]: isNumberField ? (value === "" ? NaN : +value) : value,
     });
   };
 

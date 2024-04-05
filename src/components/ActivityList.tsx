@@ -1,28 +1,21 @@
-import { Activity } from "../types";
-import { categories } from "../data/db";
-import { useMemo } from "react";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { ActivityActions } from "../reducers/activity-reducer";
+import { useActivity } from "../hook/useActivity";
+import { Activity } from "../types";
 
-type ActivityListProps = {
-  activities: Activity[];
-  dispatch: React.Dispatch<ActivityActions>;
-};
+export default function ActivityList() {
+  const { state, dispatch, categoryName, isEmptyActivities } = useActivity();
 
-export default function ActivityList({
-  activities,
-  dispatch,
-}: ActivityListProps) {
-  const categoryName = useMemo(
-    () => (category: Activity["category"]) =>
-      categories.map((cat) => (cat.id === category ? cat.name : "")),
-    []
-  );
+  const handleEdit = (id: Activity["id"]) => {
+    const formElement = document.getElementById("form");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    dispatch({
+      type: "set-activeId",
+      payload: { id: id },
+    });
+  };
 
-  const isEmptyActivities = useMemo(
-    () => activities.length === 0,
-    [activities]
-  );
   return (
     <>
       <h2 className="text-4xl font-bold text-slate-600 text-center">
@@ -31,7 +24,7 @@ export default function ActivityList({
       {isEmptyActivities ? (
         <p className="text-center my-5">No hay actividades aún...</p>
       ) : (
-        activities.map((activity) => (
+        state.activities.map((activity) => (
           <div
             key={activity.id}
             className="px-5 py-10 bg-white mt-5 flex justify-between shadow"
@@ -51,14 +44,7 @@ export default function ActivityList({
               </p>
             </div>
             <div className="flex gap-5 item-center">
-              <button
-                onClick={() =>
-                  dispatch({
-                    type: "set-activeId",
-                    payload: { id: activity.id },
-                  })
-                }
-              >
+              <button onClick={() => handleEdit(activity.id)}>
                 <PencilSquareIcon className="h-8 w-8 text-gray-800" />
               </button>
               <button

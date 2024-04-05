@@ -53,6 +53,7 @@ export const ActivityReducer = (
       activities: state.activities.filter(
         (activity) => activity.id !== action.payload.id
       ),
+      activeId: "",
     };
   }
   if (action.type === "restart-app") {
