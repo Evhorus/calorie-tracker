@@ -6,9 +6,9 @@ import { useActivity } from "../hook/useActivity";
 
 const initialState: Activity = {
   id: uuidv4(),
-  category: 1,
+  category: 0,
   name: "",
-  calories: NaN,
+  calories: "",
 };
 
 export default function Form() {
@@ -32,15 +32,18 @@ export default function Form() {
   ) => {
     const { id, value } = e.target;
     const isNumberField = ["category", "calories"].includes(id);
+
     setActivity({
       ...activity,
-      [id]: isNumberField ? (value === "" ? NaN : +value) : value,
+      [id]: isNumberField ? (value === "" ? "" : +value) : value,
     });
   };
 
   const isValidActivity = () => {
     const { name, calories } = activity;
-    return name.trim() !== "" && calories > 0;
+    const numCalories =
+      typeof calories === "string" ? parseInt(calories) : calories;
+    return name.trim() !== "" && numCalories > 0;
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
