@@ -16,6 +16,9 @@ export default function ActivityList() {
     });
   };
 
+  const handleDelete = (id: Activity["id"]) => {
+    dispatch({ type: "delete-activeId", payload: { id: id } });
+  };
   return (
     <>
       <h2 className="text-4xl font-bold text-slate-600 text-center">
@@ -47,14 +50,7 @@ export default function ActivityList() {
               <button onClick={() => handleEdit(activity.id)}>
                 <PencilSquareIcon className="h-8 w-8 text-gray-800" />
               </button>
-              <button
-                onClick={() =>
-                  dispatch({
-                    type: "delete-activeId",
-                    payload: { id: activity.id },
-                  })
-                }
-              >
+              <button onClick={() => handleDelete(activity.id)}>
                 <TrashIcon className="h-8 w-8 text-red-500" />
               </button>
             </div>

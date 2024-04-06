@@ -1,27 +1,39 @@
 import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+
 import { categories } from "../data/db";
-import { Activity } from "../types/";
+import { DraftActivity } from "../types/";
 import { useActivity } from "../hook/useActivity";
 
-const initialState: Activity = {
-  id: uuidv4(),
-  category: 0,
+const initialState: DraftActivity = {
+  category: 1,
   name: "",
   calories: "",
 };
 
 export default function Form() {
-  const [activity, setActivity] = useState<Activity>(initialState);
+  const [draftActivity, setDraftActivity] =
+    useState<DraftActivity>(initialState);
   const { state, dispatch } = useActivity();
+  // console.log(state.activities);
+
   useEffect(() => {
     if (state.activeId) {
-      const selectActivity = state.activities.filter(
+      const selectActivity = state.activities.find(
         (stateActivity) => stateActivity.id === state.activeId
-      )[0];
-      setActivity(selectActivity);
+      );
+
+      if (selectActivity) {
+        // Convertir el objeto Activity a DraftActivity
+        const draftActivity: DraftActivity = {
+          category: selectActivity.category,
+          name: selectActivity.name,
+          calories: selectActivity.calories.toString(), // Convertir calories de number a string
+        };
+
+        setDraftActivity(draftActivity);
+      }
     } else {
-      setActivity(initialState);
+      setDraftActivity(initialState);
     }
   }, [state.activeId, state.activities]);
 
@@ -33,14 +45,14 @@ export default function Form() {
     const { id, value } = e.target;
     const isNumberField = ["category", "calories"].includes(id);
 
-    setActivity({
-      ...activity,
+    setDraftActivity({
+      ...draftActivity,
       [id]: isNumberField ? (value === "" ? "" : +value) : value,
     });
   };
 
   const isValidActivity = () => {
-    const { name, calories } = activity;
+    const { name, calories } = draftActivity;
     const numCalories =
       typeof calories === "string" ? parseInt(calories) : calories;
     return name.trim() !== "" && numCalories > 0;
@@ -48,11 +60,18 @@ export default function Form() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch({ type: "save-activity", payload: { newActivity: activity } });
-    setActivity({
-      ...initialState,
-      id: uuidv4(),
-    });
+    if (state.activeId) {
+      dispatch({
+        type: "update-activity",
+        payload: { draftActivity: draftActivity },
+      });
+    } else {
+      dispatch({
+        type: "add-activity",
+        payload: { draftActivity: draftActivity },
+      });
+    }
+    setDraftActivity(initialState);
   };
   return (
     <form
@@ -66,7 +85,7 @@ export default function Form() {
         <select
           id="category"
           className="border border-slate-300 p-2 rounded-lg w-full bg-white"
-          value={activity.category}
+          value={draftActivity.category}
           onChange={handleChange}
         >
           {categories.map((category) => (
@@ -85,7 +104,7 @@ export default function Form() {
           type="text"
           className="border border-slate-300 p-2 rounded-lg"
           placeholder="Ej. Comida, Jugo de NAranja, Ensalada, Ejercicio, Pesas , Bicicleta"
-          value={activity.name}
+          value={draftActivity.name}
           onChange={handleChange}
         />
       </div>
@@ -98,14 +117,16 @@ export default function Form() {
           type="number"
           className="border border-slate-300 p-2 rounded-lg"
           placeholder="Calorias.ej. 300 o 500"
-          value={activity.calories}
+          value={draftActivity.calories}
           onChange={handleChange}
         />
       </div>
       <input
         type="submit"
         className="bg-gray-800 hover:bg-gray-900 w-full p-2 font-bold text-white cursor-pointer disabled:opacity-10"
-        value={activity.category === 1 ? "Guardar Comida" : "Guardar Ejercicio"}
+        value={
+          draftActivity.category === 1 ? "Guardar Comida" : "Guardar Ejercicio"
+        }
         disabled={!isValidActivity()}
       />
     </form>

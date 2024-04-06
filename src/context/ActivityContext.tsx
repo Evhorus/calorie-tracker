@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useMemo, useReducer } from "react";
+import { Dispatch, ReactNode, createContext, useMemo, useReducer } from "react";
 import {
   ActivityActions,
   ActivityReducer,
@@ -14,7 +14,7 @@ type ActivityProviderProps = {
 
 type ActivityContextProps = {
   state: ActivityState;
-  dispatch: React.Dispatch<ActivityActions>;
+  dispatch: Dispatch<ActivityActions>;
   categoryName: (category: Activity["category"]) => string[];
   isEmptyActivities: boolean;
 };

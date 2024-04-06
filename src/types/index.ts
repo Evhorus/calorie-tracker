@@ -7,5 +7,11 @@ export type Activity = {
   id: string;
   category: number;
   name: string;
-  calories: string | number;
+  calories: number;
+};
+
+export type DraftActivity = {
+  category: number;
+  name: string;
+  calories: string;
 };
